@@ -4,12 +4,14 @@ import os
 
 from base64 import b64encode
 from bs4 import BeautifulSoup
+from datetimerange import DateTimeRange
 from functools import partial
 from multiprocessing import Pool
 from pathlib import Path
+from typing import Optional
 
 
-def download_wart(headers, current_date_formated, path_filename):
+def _download_wart(headers, current_date_formated, path_filename):
     r = requests.get(
         "https://data.caida.org/datasets"
         "/topology/ark/ipv4/probe-data/team-1/"
@@ -22,8 +24,12 @@ def download_wart(headers, current_date_formated, path_filename):
         fd.write(r.content)
 
 
-def download_warts(
-    probing_date: datetime.date, wart_dir: Path, credentials: str, processes: int = None
+def download_dataset(
+    probing_date: datetime.date,
+    out_dir: Path,
+    credentials: str,
+    timerange: Optional[DateTimeRange] = None,
+    processes: int = None,
 ):
     userAndPass = b64encode(str.encode(credentials)).decode("ascii")
     headers = {"Authorization": "Basic %s" % userAndPass}
@@ -32,7 +38,7 @@ def download_warts(
 
     # Create a date local directory
     try:
-        os.mkdir(wart_dir)
+        os.mkdir(out_dir)
     except FileExistsError:
         pass
 
@@ -58,7 +64,7 @@ def download_warts(
 
         # Download files with the correct date
         for filename in filenames:
-            path_filename = wart_dir / filename
+            path_filename = out_dir / filename
             if probing_date_formated not in filename:
                 continue
             if path_filename.exists():
@@ -66,4 +72,4 @@ def download_warts(
 
             files_to_download.add((current_date_formated, path_filename))
 
-    Pool(processes).starmap(partial(download_wart, headers), files_to_download)
+    Pool(processes).starmap(partial(_download_wart, headers), files_to_download)

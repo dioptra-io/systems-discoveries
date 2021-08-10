@@ -85,12 +85,12 @@ def extract(wart_file: Path, timerange: Optional[DateTimeRange] = None):
 
 
 def get_nodes_links(
-    wart_dir: Path, timerange: Optional[DateTimeRange] = None, processes: int = None
+    out_dir: Path, timerange: Optional[DateTimeRange] = None, processes: int = None
 ):
-    wart_files = os.listdir(wart_dir)
+    wart_files = os.listdir(out_dir)
     results = Pool(processes).map(
         partial(extract, timerange=timerange),
-        [wart_dir / wart_file for wart_file in wart_files],
+        [out_dir / wart_file for wart_file in wart_files],
     )
 
     nodes = set()

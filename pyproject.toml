@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "platforms-discoveries"
+version = "0.1.0"
+description = ""
+authors = ["matthieugouel <matthieu.gouel@protonmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+beautifulsoup4 = "^4.9.3"
+requests = "^2.26.0"
+scamper-pywarts = "^0.2.1"
+DateTimeRange = "^1.2.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

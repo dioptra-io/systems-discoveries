@@ -1,6 +1,5 @@
 import datetime
 import requests
-import os
 
 from base64 import b64encode
 from bs4 import BeautifulSoup
@@ -40,12 +39,6 @@ def download_dataset(
 ):
     userAndPass = b64encode(str.encode(credentials)).decode("ascii")
     headers = {"Authorization": "Basic %s" % userAndPass}
-
-    # Create a date local directory
-    try:
-        os.mkdir(out_dir)
-    except FileExistsError:
-        pass
 
     files_to_download = set()
     for probing_date in compute_probing_dates(time_range):

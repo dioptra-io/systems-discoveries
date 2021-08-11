@@ -32,6 +32,7 @@ def ark(
     ),
 ):
     """Compute the number of nodes and links from Ark dataset."""
+    dataset_dir.mkdir(parents=True, exist_ok=True)
     time_range = DateTimeRange(
         datetime.fromisoformat(time_range_start),
         datetime.fromisoformat(time_range_stop),
@@ -63,6 +64,7 @@ def ripe(
     ),
 ):
     """Compute the number of nodes and links from RIPE dataset."""
+    dataset_dir.mkdir(parents=True, exist_ok=True)
     time_range = DateTimeRange(
         datetime.fromisoformat(time_range_start),
         datetime.fromisoformat(time_range_stop),

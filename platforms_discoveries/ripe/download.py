@@ -1,5 +1,4 @@
 import datetime
-import os
 import requests
 
 from bs4 import BeautifulSoup
@@ -61,12 +60,6 @@ def download_dataset(
             filename = a["href"]
             if filename.startswith("traceroute-"):
                 filenames.append(filename)
-
-        # Create a date local directory
-        try:
-            os.mkdir(out_dir)
-        except FileExistsError:
-            pass
 
         for filename in filenames:
             path_filename = out_dir / filename

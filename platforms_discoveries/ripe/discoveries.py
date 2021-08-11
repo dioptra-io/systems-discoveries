@@ -2,6 +2,7 @@ import bz2
 import json
 import os
 
+from datetime import datetime
 from datetimerange import DateTimeRange
 from functools import partial
 from multiprocessing import Pool
@@ -11,15 +12,61 @@ from typing import Optional
 
 def extract(ripe_file: Path, timerange: Optional[DateTimeRange] = None):
     fd = bz2.BZ2File(ripe_file, "r")
-    for line in fd.readlines():
-        print(line)
-        data = json.loads(line.strip())
-        print(data)
-        break
 
     nodes = set()
     links = set()
 
+    per_packet = 0
+    for line in fd:
+        data = json.loads(line.strip())
+
+        # Discard None data
+        if data is None:
+            continue
+
+        # Discard Data not in timerange if any
+        if timerange and datetime.fromtimestamp(data["timestamp"]) not in timerange:
+            continue
+
+        # Only include IPv4
+        if not data["af"] == 4:
+            continue
+
+        # Compute the nodes and links
+        last_hop = None
+        last_node = None
+        for result in data["result"]:
+            hop = result.get("hop")
+            replies = result.get("result")
+
+            if not hop or not replies:
+                last_hop = None
+                last_node = None
+                continue
+
+            node = set()
+            for reply in replies:
+                n = reply.get("from")
+                if n:
+                    node.add(n)
+
+            if len(node) == 1:
+                node = next(iter(node))
+                nodes.add(node)
+                if (
+                    last_hop is not None
+                    and last_node is not None
+                    and last_hop + 1 == hop
+                ):
+                    links.add((last_node, node))
+                last_hop = hop
+                last_node = node
+            elif len(node) > 1:
+                # per-packet load balancing
+                per_packet += 1
+                break
+
+    print("per packet", per_packet)
     fd.close()
     return nodes, links
 

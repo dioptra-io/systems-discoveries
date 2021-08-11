@@ -10,6 +10,7 @@ beautifulsoup4 = "^4.9.3"
 requests = "^2.26.0"
 scamper-pywarts = "^0.2.1"
 DateTimeRange = "^1.2.0"
+typer = "^0.3.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

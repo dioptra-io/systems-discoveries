@@ -42,7 +42,7 @@ def check(record, hop):
     return hop.address != record.dst_address and icmp_type == 11
 
 
-def extract(wart_file: Path, timerange: Optional[DateTimeRange] = None):
+def extract(time_range: Optional[DateTimeRange], wart_file: Path):
     fd = warts_open(str(wart_file))
 
     nodes = set()
@@ -58,7 +58,7 @@ def extract(wart_file: Path, timerange: Optional[DateTimeRange] = None):
         if not isinstance(record, warts.traceroute.Traceroute):
             continue
 
-        if timerange and datetime.fromtimestamp(record.start_time) not in timerange:
+        if datetime.fromtimestamp(record.start_time) not in time_range:
             continue
 
         for i, hop in enumerate(record.hops[:-1]):
@@ -85,11 +85,11 @@ def extract(wart_file: Path, timerange: Optional[DateTimeRange] = None):
 
 
 def get_nodes_links(
-    out_dir: Path, timerange: Optional[DateTimeRange] = None, processes: int = None
+    out_dir: Path, time_range: Optional[DateTimeRange] = None, processes: int = None
 ):
     wart_files = os.listdir(out_dir)
     results = Pool(processes).map(
-        partial(extract, timerange=timerange),
+        partial(extract, time_range),
         [out_dir / wart_file for wart_file in wart_files],
     )
 

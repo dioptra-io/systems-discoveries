@@ -10,25 +10,25 @@ $ python main.py ark --help
 ```
 
 ```
-Usage: main.py ark [OPTIONS] PROBING_DATE CREDENTIALS
+Usage: main.py ark [OPTIONS] CREDENTIALS
 
   Compute the number of nodes and links from Ark dataset.
 
 Arguments:
-  PROBING_DATE  Probing date in isoformat (e.g., 2021-08-06)  [required]
-  CREDENTIALS   Caida credentials (e.g., <email>:<password>)  [required]
+  CREDENTIALS  Caida credentials (e.g., <email>:<password>)  [required]
 
 Options:
-  --dataset-dir PATH      Directory where to store dataset  [default:
-                          data/ark]
+  --time-range-start TEXT  Time range start in isoformat (e.g.,
+                           2021-08-06T11:59:59)  [required]
 
-  --timerange-start TEXT  Time range start in isoformat (e.g.,
-                          2021-08-06T11:59:59)
+  --time-range-stop TEXT   Time range stop in isoformat (e.g.,
+                           2021-08-06T16:35:31)  [required]
 
-  --timerange-stop TEXT   Time range stop in isoformat (e.g.,
-                          2021-08-06T16:35:31)
+  --dataset-dir PATH       Directory where to store dataset  [default:
+                           data/ark]
 
-  --help                  Show this message and exit.
+  --processes INTEGER      Number of processes for the multiprocessing pool
+  --help                   Show this message and exit.
 ```
 
 ## RIPE dataset
@@ -38,22 +38,20 @@ $ python main.py ripe --help
 ```
 
 ```
-Usage: main.py ripe [OPTIONS] PROBING_DATE
+Usage: main.py ripe [OPTIONS]
 
   Compute the number of nodes and links from RIPE dataset.
 
-Arguments:
-  PROBING_DATE  Probing date in isoformat (e.g., 2021-08-06)  [required]
-
 Options:
-  --dataset-dir PATH      Directory where to store dataset  [default:
-                          data/ripe]
+  --time-range-start TEXT  Time range start in isoformat (e.g.,
+                           2021-08-06T11:59:59)  [required]
 
-  --timerange-start TEXT  Time range start in isoformat (e.g.,
-                          2021-08-06T11:59:59)
+  --time-range-stop TEXT   Time range stop in isoformat (e.g.,
+                           2021-08-06T16:35:31)  [required]
 
-  --timerange-stop TEXT   Time range stop in isoformat (e.g.,
-                          2021-08-06T16:35:31)
+  --dataset-dir PATH       Directory where to store dataset  [default:
+                           data/ripe]
 
-  --help                  Show this message and exit.
+  --processes INTEGER      Number of processes for the multiprocessing pool
+  --help                   Show this message and exit.
 ```

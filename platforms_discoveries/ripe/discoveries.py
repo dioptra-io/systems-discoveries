@@ -10,13 +10,12 @@ from pathlib import Path
 from typing import Optional
 
 
-def extract(ripe_file: Path, timerange: Optional[DateTimeRange] = None):
+def extract(time_range: Optional[DateTimeRange], ripe_file: Path):
     fd = bz2.BZ2File(ripe_file, "r")
 
     nodes = set()
     links = set()
 
-    per_packet = 0
     for line in fd:
         data = json.loads(line.strip())
 
@@ -24,8 +23,8 @@ def extract(ripe_file: Path, timerange: Optional[DateTimeRange] = None):
         if data is None:
             continue
 
-        # Discard Data not in timerange if any
-        if timerange and datetime.fromtimestamp(data["timestamp"]) not in timerange:
+        # Discard Data not in time range if any
+        if datetime.fromtimestamp(data["timestamp"]) not in time_range:
             continue
 
         # Only include IPv4
@@ -63,20 +62,20 @@ def extract(ripe_file: Path, timerange: Optional[DateTimeRange] = None):
                 last_node = node
             elif len(node) > 1:
                 # per-packet load balancing
-                per_packet += 1
-                break
+                last_hop = None
+                last_node = None
 
-    print("per packet", per_packet)
     fd.close()
+    print(len(nodes), len(links))
     return nodes, links
 
 
 def get_nodes_links(
-    out_dir: Path, timerange: Optional[DateTimeRange] = None, processes: int = None
+    out_dir: Path, time_range: Optional[DateTimeRange] = None, processes: int = None
 ):
     ripe_files = os.listdir(out_dir)
     results = Pool(processes).map(
-        partial(extract, timerange=timerange),
+        partial(extract, time_range),
         [out_dir / ripe_file for ripe_file in ripe_files],
     )
 

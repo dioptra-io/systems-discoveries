@@ -8,6 +8,7 @@ from platforms_discoveries.ripe.discoveries import get_nodes_links as ripe_nodes
 from datetime import datetime
 from datetimerange import DateTimeRange
 from pathlib import Path
+from typing import List
 
 
 app = typer.Typer()
@@ -24,6 +25,9 @@ def ark(
     time_range_stop: str = typer.Option(
         ..., help="Time range end in isoformat (e.g., 2021-08-06T16:35:31)"
     ),
+    cycle: List[str] = typer.Option(
+        None, help="Filter to a specific cycle in the specified time range"
+    ),
     dataset_dir: Path = typer.Option(
         Path("./data/ark"), help="Directory where to store dataset"
     ),
@@ -39,10 +43,10 @@ def ark(
     )
 
     # Download Ark files
-    ark_dataset(dataset_dir, credentials, time_range, processes)
+    ark_dataset(dataset_dir, credentials, time_range, cycle, processes)
 
     # Compute nodes and links
-    nodes, links = ark_nodes_links(dataset_dir, time_range, processes)
+    nodes, links = ark_nodes_links(dataset_dir, time_range, cycle, processes)
 
     typer.echo(f"Nodes: {len(nodes)}")
     typer.echo(f"Links: {len(links)}")

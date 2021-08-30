@@ -1,4 +1,3 @@
-import datetime
 import requests
 
 from bs4 import BeautifulSoup
@@ -6,6 +5,11 @@ from datetimerange import DateTimeRange
 from multiprocessing import Pool
 from pathlib import Path
 from typing import Optional
+
+from platforms_discoveries.ripe.dates import (
+    probing_dates_from_time_range,
+    is_filename_time_range,
+)
 
 
 def _download_file(current_date_formated, path_filename):
@@ -18,34 +22,13 @@ def _download_file(current_date_formated, path_filename):
         fd.write(r.content)
 
 
-def filename_to_datetime(filename):
-    datehour = filename[11:-4]
-    d, h = datehour.split("T")
-    t = h[:2] + ":00:00"
-    return datetime.datetime.fromisoformat(d + "T" + t) + datetime.timedelta(hours=2)
-
-
-def compute_probing_dates(time_range):
-    dates = set()
-    for hours in time_range.range(datetime.timedelta(hours=1)):
-        dates.add(hours.date())
-    dates.add(min(dates) - datetime.timedelta(days=1))
-    return dates
-
-
 def download_dataset(
     out_dir: Path,
     time_range: Optional[DateTimeRange] = None,
     processes: int = None,
 ):
-
-    # To get the first hour
-    extended_time_range = DateTimeRange(
-        time_range.start_datetime - datetime.timedelta(hours=1), time_range.end_datetime
-    )
-
     files_to_download = set()
-    for probing_date in compute_probing_dates(extended_time_range):
+    for probing_date in probing_dates_from_time_range(time_range):
         probing_date_formated = probing_date.isoformat()
 
         # Get the file list
@@ -63,9 +46,8 @@ def download_dataset(
 
         for filename in filenames:
             path_filename = out_dir / filename
-            if filename_to_datetime(filename) not in extended_time_range:
+            if not is_filename_time_range(filename, time_range):
                 # Filter to keep the files only in the time range
-                # The top of the hour must be in the timerange to be counted
                 continue
             if path_filename.exists():
                 continue

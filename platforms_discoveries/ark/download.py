@@ -1,4 +1,3 @@
-import datetime
 import requests
 
 from base64 import b64encode
@@ -7,7 +6,9 @@ from datetimerange import DateTimeRange
 from functools import partial
 from multiprocessing import Pool
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional
+
+from platforms_discoveries.ark.dates import probing_dates_from_time_range
 
 
 def _download_wart(headers, current_date_formated, path_filename):
@@ -23,25 +24,18 @@ def _download_wart(headers, current_date_formated, path_filename):
         fd.write(r.content)
 
 
-def compute_probing_dates(time_range):
-    dates = set()
-    for hours in time_range.range(datetime.timedelta(hours=1)):
-        dates.add(hours.date())
-    dates.add(min(dates) - datetime.timedelta(days=1))
-    return dates
-
-
 def download_dataset(
     out_dir: Path,
     credentials: str,
     time_range: Optional[DateTimeRange] = None,
-    processes: int = None,
+    cycles: Optional[List[str]] = None,
+    processes: Optional[int] = None,
 ):
     userAndPass = b64encode(str.encode(credentials)).decode("ascii")
     headers = {"Authorization": "Basic %s" % userAndPass}
 
     files_to_download = set()
-    for probing_date in compute_probing_dates(time_range):
+    for probing_date in probing_dates_from_time_range(time_range):
         probing_date_formated = probing_date.strftime("%Y%m%d")
 
         # Get the warts list
@@ -62,6 +56,8 @@ def download_dataset(
         for filename in filenames:
             path_filename = out_dir / filename
             if probing_date_formated not in filename:
+                continue
+            if cycles and not any(map(lambda cycle: cycle in filename, cycles)):
                 continue
             if path_filename.exists():
                 continue
